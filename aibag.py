@@ -27,7 +27,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         message=engineered_prompt,
         temperature=0.3,
         chat_history=[],
-        prompt_truncation='AUTO'
+        prompt_truncation='AUTO',
+        connectors=[{"id": "web-search"}]
     )
 
     blog_content = ""
@@ -35,6 +36,27 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         if event.event_type == "text-generation":
             blog_content += event.text
 
+    # Remove unwanted prefixes and format markdown content
+    blog_content = blog_content.replace("## Outline:", "").strip()
+    blog_content = blog_content.replace("## Article:", "").strip()
+    blog_content = blog_content.replace("#### H4:", "####")
+    blog_content = blog_content.replace("### H3:", "###")
+    blog_content = blog_content.replace("## H2:", "##")
+    blog_content = blog_content.replace("# H1:", "#")
+
+    # Ensure the first line is a top-level heading
+    if not blog_content.startswith("# "):
+        blog_content = f"# {prompt}\n\n" + blog_content
+
+    # Remove trailing punctuation from headings
+    lines = blog_content.split('\n')
+    for i in range(len(lines)):
+        if lines[i].startswith('#'):
+            lines[i] = lines[i].rstrip(':')
+
+    blog_content = '\n'.join(lines)
+
+    # Generate the output file
     if output_format.lower() == 'html':
         output_file = f"{file_name or prompt}.html"
         with open(output_file, 'w', encoding='utf-8') as f:
