@@ -5,10 +5,10 @@ from config import COHERE_API_KEY
 # Initialize the Cohere API client
 co = cohere.Client(api_key=COHERE_API_KEY)
 
-def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None):
+def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None, language='English'):
     # Construct the engineered prompt
     engineered_prompt = f"""
-    I Want You To Act As A Content Writer Very Proficient SEO Writer Writes Fluently [TARGETLANGUAGE]. First Create Two Tables. First Table Should be the Outline of the Article and the Second Should be the Article. Bold the Heading of the Second Table using Markdown language. Write an outline of the article separately before writing it, at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) Then, start writing based on that outline step by step. Write a 2000-word 100% Unique, SEO-optimized, Human-Written article in [TARGETLANGUAGE] with at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) that covers the topic provided in the Prompt. Write The article In Your Own Words Rather Than Copying And Pasting From Other Sources. Consider perplexity and burstiness when creating content, ensuring high levels of both without losing specificity or context. Use fully detailed paragraphs that engage the reader. Write In A Conversational Style As Written By A Human (Use An Informal Tone, Utilize Personal Pronouns, Keep It Simple, Engage The Reader, Use The Active Voice, Keep It Brief, Use Rhetorical Questions, and Incorporate Analogies And Metaphors). End with a conclusion paragraph and 5 unique FAQs After The Conclusion. This is important to Bold the Title and all headings of the article, and use appropriate headings for H tags.
+    I Want You To Act As A Content Writer Very Proficient SEO Writer Writes Fluently {language}. First Create Two Tables. First Table Should be the Outline of the Article and the Second Should be the Article. Bold the Heading of the Second Table using Markdown language. Write an outline of the article separately before writing it, at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) Then, start writing based on that outline step by step. Write a 2000-word 100% Unique, SEO-optimized, Human-Written article in {language} with at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) that covers the topic provided in the Prompt. Write The article In Your Own Words Rather Than Copying And Pasting From Other Sources. Consider perplexity and burstiness when creating content, ensuring high levels of both without losing specificity or context. Use fully detailed paragraphs that engage the reader. Write In A Conversational Style As Written By A Human (Use An Informal Tone, Utilize Personal Pronouns, Keep It Simple, Engage The Reader, Use The Active Voice, Keep It Brief, Use Rhetorical Questions, and Incorporate Analogies And Metaphors). End with a conclusion paragraph and 5 unique FAQs After The Conclusion. This is important to Bold the Title and all headings of the article, and use appropriate headings for H tags.
     Now Write An Article On This Topic "{prompt}"
     """
 
@@ -79,17 +79,18 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
 def main():
     parser = argparse.ArgumentParser(description='AI Blog Generator')
     parser.add_argument('topic', type=str, help='Topic of the blog')
-    parser.add_argument('--max_words', type=int, help='Maximum number of words')
-    parser.add_argument('--min_words', type=int, help='Minimum number of words')
-    parser.add_argument('--output_format', type=str, choices=['HTML', 'Markdown'], default='HTML', help='Output format (HTML or Markdown)')
-    parser.add_argument('--file_name', type=str, help='Output file name')
+    parser.add_argument('-mw', '--max_words', type=int, help='Maximum number of words')
+    parser.add_argument('-mnw', '--min_words', type=int, help='Minimum number of words')
+    parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown'], default='HTML', help='Output format (HTML or Markdown)')
+    parser.add_argument('-fn', '--file_name', type=str, help='Output file name')
+    parser.add_argument('-l', '--language', type=str, default='English', help='Language of the article')
 
     args = parser.parse_args()
 
     if not args.max_words and not args.min_words:
         parser.error('At least one of --max_words or --min_words is required.')
 
-    generate_blog(args.topic, args.max_words, args.min_words, args.output_format, args.file_name)
+    generate_blog(args.topic, args.max_words, args.min_words, args.output_format, args.file_name, args.language)
 
 if __name__ == '__main__':
     main()
