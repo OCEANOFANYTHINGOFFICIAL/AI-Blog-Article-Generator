@@ -36,7 +36,7 @@ The project is organized as follows:
 ``` plaintext
 AI-Blog-Article-Generator/
 ├── config.py                # Configuration file for API keys
-├── generator.py             # Main script to generate blog content
+├── aibag.py             # Main script to generate blog content
 ├── README.md                # This file
 ├── contributing.md          # Guidelines for contributing
 ├── code_of_conduct.md       # Code of Conduct for contributors
