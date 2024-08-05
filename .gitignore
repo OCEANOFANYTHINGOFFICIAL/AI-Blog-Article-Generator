@@ -54,9 +54,6 @@ venv.bak/
 # PyCharm
 .idea/
 
-# Cohere API key
-config.py
-
 # MacOS
 .DS_Store
 
