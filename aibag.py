@@ -63,8 +63,14 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             f.write(f"<!DOCTYPE html>\n<html>\n<head>\n<title>{prompt}</title>\n")
             f.write('<meta name="description" content="SEO optimized blog">\n')
             f.write('<meta name="keywords" content="blog, SEO, Cohere">\n')
+            f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
             f.write('</head>\n<body>\n')
-            f.write(blog_content.replace('\n', '<br>\n'))
+            f.write('<markdown>\n')
+            f.write(blog_content)
+            f.write('\n</markdown>\n')
+            f.write('<script>\n')
+            f.write('document.addEventListener("DOMContentLoaded", function() { mdonhtml(); });\n')
+            f.write('</script>\n')
             f.write('\n</body>\n</html>')
     else:
         output_file = f"{file_name or prompt}.md"
