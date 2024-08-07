@@ -27,8 +27,7 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         message=engineered_prompt,
         temperature=0.3,
         chat_history=[],
-        prompt_truncation='AUTO',
-        connectors=[{"id": "web-search"}]
+        prompt_truncation='AUTO'
     )
 
     blog_content = ""
