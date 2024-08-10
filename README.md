@@ -1,7 +1,7 @@
 # AI Blog Article Generator
 
 <p align="center">
-    <img src="image/banner.png" alt="Logo" width="100%">
+    <img src="image/banner.png" alt="Logo" width="90%">
 </p>
 
 <p align="center">
