@@ -18,25 +18,35 @@ jobs:
       github.actor == 'renovate[bot]'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup GitHub CLI
         uses: actions/setup-node@v3
 
       - name: Wait for CI checks to pass
-        uses: actions/github-script@v7
+        uses: actions/github-script@v6
         with:
           script: |
-            const { context } = require('@actions/github');
-            const checks = await context.github.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.payload.pull_request.head.sha,
-            });
+            const { github, context } = require('@actions/github');
+            const pullRequestSha = context.payload.pull_request.head.sha;
+            
+            async function checkCI() {
+              const { data: checkRuns } = await github.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pullRequestSha,
+              });
 
-            if (checks.data.check_runs.some(check => check.conclusion !== 'success')) {
-              throw new Error('Not all CI checks have passed.');
+              const allChecksPassed = checkRuns.check_runs.every(run => run.conclusion === 'success');
+              if (!allChecksPassed) {
+                throw new Error('Not all CI checks have passed.');
+              }
             }
+            
+            checkCI().catch(error => {
+              console.error(error);
+              process.exit(1);
+            });
 
       - name: Automatically merge PRs
         run: |
