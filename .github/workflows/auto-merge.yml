@@ -31,22 +31,24 @@ jobs:
             const pullRequestSha = context.payload.pull_request.head.sha;
             
             async function checkCI() {
-              const { data: checkRuns } = await github.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: pullRequestSha,
-              });
+              try {
+                const { data: checkRuns } = await github.checks.listForRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: pullRequestSha,
+                });
 
-              const allChecksPassed = checkRuns.check_runs.every(run => run.conclusion === 'success');
-              if (!allChecksPassed) {
-                throw new Error('Not all CI checks have passed.');
+                const allChecksPassed = checkRuns.check_runs.every(run => run.conclusion === 'success');
+                if (!allChecksPassed) {
+                  throw new Error('Not all CI checks have passed.');
+                }
+              } catch (error) {
+                console.error(error);
+                process.exit(1);
               }
             }
             
-            checkCI().catch(error => {
-              console.error(error);
-              process.exit(1);
-            });
+            checkCI();
 
       - name: Automatically merge PRs
         run: |
