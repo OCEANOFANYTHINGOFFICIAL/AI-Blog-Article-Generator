@@ -13,8 +13,9 @@ jobs:
     if: |
       github.actor == 'dependabot[bot]' || 
       github.actor == 'OCEANOFANYTHINGOFFICIAL' || 
-      github.actor == 'dipraghosh2006' || 
-      github.actor == 'dawidprofo'
+      github.actor == 'DIPRAGHOSH2006' || 
+      github.actor == 'dawidprofo' || 
+      github.actor == 'renovate[bot]'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
