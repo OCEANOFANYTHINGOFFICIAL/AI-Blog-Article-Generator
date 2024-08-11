@@ -1,0 +1,44 @@
+name: Auto Merge PRs
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: |
+      github.actor == 'dependabot[bot]' || 
+      github.actor == 'OCEANOFANYTHINGOFFICIAL' || 
+      github.actor == 'dipraghosh2006' || 
+      github.actor == 'dawidprofo'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup GitHub CLI
+        uses: actions/setup-node@v3
+
+      - name: Wait for CI checks to pass
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { context } = require('@actions/github');
+            const checks = await context.github.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha,
+            });
+
+            if (checks.data.check_runs.some(check => check.conclusion !== 'success')) {
+              throw new Error('Not all CI checks have passed.');
+            }
+
+      - name: Automatically merge PRs
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --auto --squash --message "chore: ${{ github.event.pull_request.title }}" --delete-branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
