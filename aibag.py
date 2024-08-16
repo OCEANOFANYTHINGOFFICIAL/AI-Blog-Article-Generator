@@ -104,6 +104,9 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             f.write(f"<!DOCTYPE html>\n<html>\n<head>\n<title>{prompt}</title>\n")
             f.write(f'<meta name="description" content="{description}">\n')  # Dynamic description
             f.write(f'<meta name="keywords" content="{keywords}">\n')  # Dynamic keywords
+            f.write('<style>\n')
+            f.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }\n')
+            f.write('</style>\n')
             f.write('</head>\n<body>\n')
             f.write('<markdown>\n')
             f.write(blog_content)
