@@ -3,13 +3,13 @@ import warnings
 # Suppress specific Pydantic warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic._internal._config")
 
-import time
+
+import random
 from retrying import retry
 import cohere
 import argparse
 from config import COHERE_API_KEY
 from colorama import Fore, Style, init
-from urllib.parse import quote_plus
 
 # Initialize colorama
 init(autoreset=True)
@@ -86,14 +86,14 @@ def generate_image_topics(headline):
     return topics
 
 def generate_image_url(meta_keywords):
-    # Extract the first two keywords from meta_keywords
-    meta_keywords_list = [keyword.strip() for keyword in meta_keywords.split(',')]
-    first_two_keywords = ','.join(meta_keywords_list[:2])  # Get the first two keywords
-    encoded_keywords = quote_plus(first_two_keywords)  # URL-encode the keywords
-    raw_encoded_keywords = encoded_keywords.replace('%2C', ',')
+    # Extract keywords from the meta_keywords
+    keywords_list = [keyword.strip() for keyword in meta_keywords.split(',')]
     
-    # Generate the URL with only the first two keywords
-    return f"https://loremflickr.com/800/600/{raw_encoded_keywords.replace('+', ',')}"
+    # Choose a single random keyword from the list
+    random_keyword = random.choice(keywords_list) if keywords_list else 'default'
+
+    # Generate the URL with the selected keyword
+    return f"https://loremflickr.com/800/600/{random_keyword.replace(' ', '+')}"
 
 
 
@@ -231,6 +231,7 @@ def github_readme_font(content):
 
     except Exception as e:
         print_error(f"Failed to generate the blog: {e}")
+
 
 def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None, language='English'):
     try:
