@@ -86,9 +86,11 @@ def generate_image_topics(headline):
     return topics
 
 def generate_image_url(topics):
-    # Encode the topics for URL use, replace '+' with ',' for URL
-    encoded_topics = quote_plus(topics)
-    return f"https://loremflickr.com/800/600/{encoded_topics}"
+    # Replace '+' with ',' and encode the topics for URL use
+    topics = topics.replace(' ', ',')  # Replace spaces with commas
+    encoded_topics = quote_plus(topics)  # URL-encode the comma-separated topics
+    # Replace '%2C' with ',' in the URL
+    return f"https://loremflickr.com/800/600/{encoded_topics.replace('%2C', ',')}"
 
 def generate_meta_keywords(content):
     # Generate SEO meta keywords from the content
@@ -212,7 +214,10 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                 output_file = f"{file_name or prompt}.md"
                 with open(output_file, 'w', encoding='utf-8') as f:
                     f.write(markdown_content)
-
+            elif output_format.lower() == 'github':
+                output_file = f"{file_name or prompt}.md"
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(markdown_content)
             else:
                 print_error(f"Invalid output format: {output_format}")
         except Exception as e:
