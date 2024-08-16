@@ -9,6 +9,7 @@ import cohere
 import argparse
 from config import COHERE_API_KEY
 from colorama import Fore, Style, init
+from urllib.parse import quote_plus
 
 # Initialize colorama
 init(autoreset=True)
@@ -20,17 +21,23 @@ def print_step(step_text, color=Fore.CYAN):
     print(f"{color}[*] {step_text}{Style.RESET_ALL}")
 
 def print_warning(step_text):
-    print(f"{Fore.YELLOW}[ ! ] {step_text}{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}[!] {step_text}{Style.RESET_ALL}")
 
 def print_error(step_text):
-    print(f"{Fore.RED}[ X] {step_text}{Style.RESET_ALL}")
+    print(f"{Fore.RED}[X] {step_text}{Style.RESET_ALL}")
 
 @retry(stop_max_attempt_number=3, wait_fixed=2000)
 def fetch_blog_content(prompt, max_words=None, min_words=None, language='English'):
     # Create a detailed prompt for the Cohere API
     engineered_prompt = f"""
-    I Want You To Act As A Content Writer Very Proficient SEO Writer Writes Fluently {language}. First Create Two Tables. First Table Should be the Outline of the Article and the Second Should be the Article. Bold the Heading of the Second Table using Markdown language. Write an outline of the article separately before writing it, at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) Then, start writing based on that outline step by step. Write a 2000-word 100% Unique, SEO-optimized, Human-Written article in {language} with at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) that covers the topic provided in the Prompt. Write The article In Your Own Words Rather Than Copying And Pasting From Other Sources. Consider perplexity and burstiness when creating content, ensuring high levels of both without losing specificity or context. Use fully detailed paragraphs that engage the reader. Write In A Conversational Style As Written By A Human (Use An Informal Tone, Utilize Personal Pronouns, Keep It Simple, Engage The Reader, Use The Active Voice, Keep It Brief, Use Rhetorical Questions, and Incorporate Analogies And Metaphors). End with a conclusion paragraph and 5 unique FAQs After The Conclusion. This is important to Bold the Title and all headings of the article, and use appropriate headings for H tags.
-    Now Write An Article On This Topic "{prompt}"
+    I want you to act as a professional content writer with expertise in SEO and blog writing. Create a comprehensive 2000-word blog article in {language} on the topic provided. The article should include:
+    1. An outline with at least 15 headings and subheadings.
+    2. Detailed, engaging content under each heading.
+    3. SEO-optimized keywords and a meta description.
+
+    Use conversational and human-like writing style, ensuring the content is unique, informative, and engaging. End with a conclusion paragraph and 5 unique FAQs after the conclusion. Bold the title and all headings.
+
+    Here is the topic: "{prompt}"
     """
 
     # Add max_words and min_words to the prompt if specified
@@ -55,6 +62,51 @@ def fetch_blog_content(prompt, max_words=None, min_words=None, language='English
             blog_content += event.text
 
     return blog_content
+
+def generate_image_url(topic):
+    # Encode the topic for URL use
+    encoded_topic = quote_plus(topic)
+    return f"https://loremflickr.com/800/600/{encoded_topic}"
+
+def generate_meta_keywords(content):
+    # Generate SEO meta keywords from the content
+    keywords_prompt = f"""
+    Generate a list of SEO keywords relevant to the following blog content. The keywords should be separated by commas and should be highly relevant to the content. Here is the content:
+    {content}
+    """
+    try:
+        response = co.generate(
+            model='command-r-plus',
+            prompt=keywords_prompt,
+            max_tokens=50,
+            temperature=0.5,
+        )
+        keywords = response.generations[0].text.strip()
+    except Exception as e:
+        print_error(f"Failed to generate keywords: {e}")
+        keywords = "default, keywords, here"
+
+    return keywords
+
+def github_readme_font(content):
+    # Generate GitHub README specific font formatting
+    readme_prompt = f"""
+    Convert the following blog content into GitHub README style formatting. The content should be formatted in Markdown suitable for a GitHub README file. Here is the content:
+    {content}
+    """
+    try:
+        response = co.generate(
+            model='command-r-plus',
+            prompt=readme_prompt,
+            max_tokens=1000,
+            temperature=0.5,
+        )
+        readme_content = response.generations[0].text.strip()
+    except Exception as e:
+        print_error(f"Failed to generate README formatting: {e}")
+        readme_content = content
+
+    return readme_content
 
 def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None, language='English'):
     try:
@@ -85,26 +137,18 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             if lines[i].startswith('#'):
                 lines[i] = lines[i].rstrip(':')
 
-        blog_content = '\n'.join(lines)
+        # Replace section headings with image placeholders from loremflickr.com
+        for i, line in enumerate(lines):
+            if line.startswith('# '):  # Heading line
+                section_title = line[2:]  # Remove the '# ' prefix
+                image_url = generate_image_url(section_title)
+                lines[i] = f'{line}\n![Image]({image_url})'
 
-        # Step 1: Generate Keywords from the Blog Content
-        print_step("Generating SEO keywords for the blog...")
-        keyword_prompt = f"Extract the top SEO keywords for this content. Just give the meta keywords in plain text format, separated by commas. Here is the content:\n{blog_content}"
-        try:
-            keyword_response = co.generate(
-                model='command-r-plus',
-                prompt=keyword_prompt,
-                max_tokens=50,
-                temperature=0.5,
-            )
-            keywords = keyword_response.generations[0].text.strip().replace('\n', ', ')
-        except Exception as e:
-            print_error(f"Failed to generate keywords: {e}")
-            keywords = "default, keywords"
+        # Join the lines to form the final Markdown content
+        markdown_content = '\n'.join(lines)
 
-        # Step 2: Generate Description from the Blog Content
-        print_step("Generating meta description for the blog...")
-        description_prompt = f"Generate a brief and relevant meta description for this content. Just give the meta description that is SEO friendly and relevant, don't give any extra words, or any prefix of suffix. Here is the content:\n{blog_content}"
+        # Generate SEO meta description
+        description_prompt = f"Generate a brief and relevant meta description for this content. Just give the meta description that is SEO friendly and relevant, don't give any extra words, or any prefix or suffix. Here is the content:\n{markdown_content}"
         try:
             description_response = co.generate(
                 model='command-r-plus',
@@ -117,6 +161,13 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             print_error(f"Failed to generate description: {e}")
             description = "Default SEO description"
 
+        # Generate meta keywords
+        meta_keywords = generate_meta_keywords(markdown_content)
+
+        # Convert to GitHub README style if requested
+        if output_format.lower() == 'github':
+            markdown_content = github_readme_font(markdown_content)
+
         # Log step: Creating the output file
         print_step(f"Creating the output file in {output_format} format...")
 
@@ -127,23 +178,20 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                 with open(output_file, 'w', encoding='utf-8') as f:
                     f.write(f"<!DOCTYPE html>\n<html>\n<head>\n<title>{prompt}</title>\n")
                     f.write(f'<meta name="description" content="{description}">\n')  # Dynamic description
-                    f.write(f'<meta name="keywords" content="{keywords}">\n')  # Dynamic keywords
-                    f.write('<style>\n')
-                    f.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }\n')
-                    f.write('</style>\n')
+                    f.write(f'<meta name="keywords" content="{meta_keywords}">\n')  # Dynamic keywords
                     f.write('</head>\n<body>\n')
                     f.write('<markdown>\n')
-                    f.write(blog_content)
+                    f.write(markdown_content)
                     f.write('\n</markdown>\n')
                     f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
                     f.write('\n</body>\n</html>')
-            else:
+            elif output_format.lower() == 'md':
                 output_file = f"{file_name or prompt}.md"
                 with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(blog_content)
+                    f.write(markdown_content)
 
-            # Log step: Blog content generation completed
-            print_step(f"Blog content generated and saved to {output_file}", Fore.GREEN)
+            else:
+                print_error(f"Invalid output format: {output_format}")
         except Exception as e:
             print_error(f"Failed to save the blog content: {e}")
 
@@ -156,7 +204,7 @@ def main():
     parser.add_argument('topic', type=str, help='Topic of the blog')  # Required argument for blog topic
     parser.add_argument('-mw', '--max_words', type=int, help='Maximum number of words')  # Optional max words argument
     parser.add_argument('-mnw', '--min_words', type=int, help='Minimum number of words')  # Optional min words argument
-    parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown'], default='HTML', help='Output format (HTML or Markdown)')  # Optional output format argument
+    parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown', 'md', 'github'], default='HTML', help='Output format (HTML, Markdown, md, GitHub)')  # Optional output format argument
     parser.add_argument('-fn', '--file_name', type=str, help='Output file name')  # Optional file name argument
     parser.add_argument('-l', '--language', type=str, default='English', help='Language of the article')  # Optional language argument
 
