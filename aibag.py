@@ -1,10 +1,12 @@
-import cohere
-import argparse
 import warnings
-from config import COHERE_API_KEY
 
 # Suppress specific Pydantic warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic._internal._config")
+
+import cohere
+import argparse
+from config import COHERE_API_KEY
+
 
 
 # Initialize the Cohere API client using the provided API key
