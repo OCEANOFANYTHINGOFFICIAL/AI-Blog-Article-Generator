@@ -90,9 +90,10 @@ def generate_image_url(meta_keywords):
     meta_keywords_list = [keyword.strip() for keyword in meta_keywords.split(',')]
     first_two_keywords = ','.join(meta_keywords_list[:2])  # Get the first two keywords
     encoded_keywords = quote_plus(first_two_keywords)  # URL-encode the keywords
+    raw_encoded_keywords = encoded_keywords.replace('%2C', ',')
     
     # Generate the URL with only the first two keywords
-    return f"https://loremflickr.com/800/600/{encoded_keywords.replace('%2C', ',')}"
+    return f"https://loremflickr.com/800/600/{raw_encoded_keywords.replace('+', ',')}"
 
 
 
