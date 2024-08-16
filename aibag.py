@@ -35,6 +35,8 @@ def fetch_blog_content(prompt, max_words=None, min_words=None, language='English
     2. Detailed, engaging content under each heading.
     3. SEO-optimized keywords and a meta description.
 
+    For each section of the article, suggest relevant images by providing image descriptions or URLs suitable for that section. Make sure to incorporate these images in the Markdown format of the article.
+
     Use conversational and human-like writing style, ensuring the content is unique, informative, and engaging. End with a conclusion paragraph and 5 unique FAQs after the conclusion. Bold the title and all headings.
 
     Here is the topic: "{prompt}"
@@ -63,10 +65,30 @@ def fetch_blog_content(prompt, max_words=None, min_words=None, language='English
 
     return blog_content
 
-def generate_image_url(topic):
-    # Encode the topic for URL use
-    encoded_topic = quote_plus(topic)
-    return f"https://loremflickr.com/800/600/{encoded_topic}"
+def generate_image_topics(headline):
+    # Generate image topics based on the headline
+    topics_prompt = f"""
+    Generate a list of keywords or topics for images based on the following headline. Provide the topics separated by commas. Here is the headline:
+    {headline}
+    """
+    try:
+        response = co.generate(
+            model='command-r-plus',
+            prompt=topics_prompt,
+            max_tokens=50,
+            temperature=0.5,
+        )
+        topics = response.generations[0].text.strip()
+    except Exception as e:
+        print_error(f"Failed to generate image topics: {e}")
+        topics = headline  # Fallback to headline as topics if AI fails
+
+    return topics
+
+def generate_image_url(topics):
+    # Encode the topics for URL use, replace '+' with ',' for URL
+    encoded_topics = quote_plus(topics)
+    return f"https://loremflickr.com/800/600/{encoded_topics}"
 
 def generate_meta_keywords(content):
     # Generate SEO meta keywords from the content
@@ -141,7 +163,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         for i, line in enumerate(lines):
             if line.startswith('# '):  # Heading line
                 section_title = line[2:]  # Remove the '# ' prefix
-                image_url = generate_image_url(section_title)
+                image_topics = generate_image_topics(section_title)
+                image_url = generate_image_url(image_topics)
                 lines[i] = f'{line}\n![Image]({image_url})'
 
         # Join the lines to form the final Markdown content
