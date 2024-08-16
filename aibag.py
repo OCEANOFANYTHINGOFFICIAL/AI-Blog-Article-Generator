@@ -6,13 +6,19 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic._intern
 import cohere
 import argparse
 from config import COHERE_API_KEY
+from colorama import Fore, Style, init
 
 
+# Initialize colorama
+init(autoreset=True)
 
 # Initialize the Cohere API client using the provided API key
 co = cohere.Client(api_key=COHERE_API_KEY)
 
 def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None, language='English'):
+    # Log step: Starting blog content generation
+    print(f"{Fore.CYAN}[ * ] Generating blog content for the topic: {prompt}{Style.RESET_ALL}")
+    
     # Create a detailed prompt for the Cohere API
     engineered_prompt = f"""
     I Want You To Act As A Content Writer Very Proficient SEO Writer Writes Fluently {language}. First Create Two Tables. First Table Should be the Outline of the Article and the Second Should be the Article. Bold the Heading of the Second Table using Markdown language. Write an outline of the article separately before writing it, at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) Then, start writing based on that outline step by step. Write a 2000-word 100% Unique, SEO-optimized, Human-Written article in {language} with at least 15 headings and subheadings (including H1, H2, H3, and H4 headings) that covers the topic provided in the Prompt. Write The article In Your Own Words Rather Than Copying And Pasting From Other Sources. Consider perplexity and burstiness when creating content, ensuring high levels of both without losing specificity or context. Use fully detailed paragraphs that engage the reader. Write In A Conversational Style As Written By A Human (Use An Informal Tone, Utilize Personal Pronouns, Keep It Simple, Engage The Reader, Use The Active Voice, Keep It Brief, Use Rhetorical Questions, and Incorporate Analogies And Metaphors). End with a conclusion paragraph and 5 unique FAQs After The Conclusion. This is important to Bold the Title and all headings of the article, and use appropriate headings for H tags.
@@ -25,8 +31,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
     if min_words:
         engineered_prompt += f"\nMinimum Words: {min_words}"
 
-    # Notify the user that the blog content generation is in progress
-    print("Generating blog content...")
+    # Log step: Sending request to Cohere API
+    print(f"{Fore.CYAN}[ * ] Sending request to Cohere API for blog content generation...{Style.RESET_ALL}")
 
     # Call the Cohere API to generate the blog content
     stream = co.chat_stream(
@@ -43,6 +49,9 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         if event.event_type == "text-generation":
             blog_content += event.text
 
+    # Log step: Cleaning up blog content
+    print(f"{Fore.CYAN}[ * ] Cleaning up the generated blog content...{Style.RESET_ALL}")
+    
     # Clean up the blog content by removing unwanted prefixes and adjusting markdown formatting
     blog_content = blog_content.replace("## Outline:", "").strip()
     blog_content = blog_content.replace("## Article:", "").strip()
@@ -64,7 +73,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
     blog_content = '\n'.join(lines)
 
     # Step 1: Generate Keywords from the Blog Content
-    keyword_prompt = f"Extract the top SEO keywords for this content, don't give any extra output, just give the meta keywords in plain text format, no extra words. give the keywords in form of plain text and each keyword must be seperated with comma.Here is the content:\n{blog_content}"
+    print(f"{Fore.CYAN}[ * ] Generating SEO keywords for the blog...{Style.RESET_ALL}")
+    keyword_prompt = f"Extract the top SEO keywords for this content. Just give the meta keywords in plain text format, separated by commas. Here is the content:\n{blog_content}"
     keyword_response = co.generate(
         model='command-r-plus',
         prompt=keyword_prompt,
@@ -74,7 +84,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
     keywords = keyword_response.generations[0].text.strip().replace('\n', ', ')
 
     # Step 2: Generate Description from the Blog Content
-    description_prompt = f"Generate a brief and relevant meta description for this content, don't give any extra output, just give the meta description that is SEO friendly and relevant:\n{blog_content}"
+    print(f"{Fore.CYAN}[ * ] Generating meta description for the blog...{Style.RESET_ALL}")
+    description_prompt = f"Generate a brief and relevant meta description for this content. Just give the meta description that is SEO friendly and relevant, don't give any extra words, or any prefix of suffix. Here is the content:\n{blog_content}"
     description_response = co.generate(
         model='command-r-plus',
         prompt=description_prompt,
@@ -82,6 +93,9 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         temperature=0.5,
     )
     description = description_response.generations[0].text.strip()
+
+    # Log step: Creating the output file
+    print(f"{Fore.CYAN}[ * ] Creating the output file in {output_format} format...{Style.RESET_ALL}")
 
     # Generate the output file based on the specified format
     if output_format.lower() == 'html':
@@ -101,8 +115,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(blog_content)
 
-    # Notify the user that the blog content has been generated and saved
-    print(f"Blog content generated and saved to {output_file}")
+    # Log step: Blog content generation completed
+    print(f"{Fore.GREEN}[ * ] Blog content generated and saved to {output_file}{Style.RESET_ALL}")
 
 def main():
     # Set up argument parser for command-line interface
