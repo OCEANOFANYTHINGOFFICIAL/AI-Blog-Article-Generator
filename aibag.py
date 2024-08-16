@@ -88,7 +88,10 @@ def generate_image_topics(headline):
 def generate_image_url(topics):
     # Replace '+' with ',' and encode the topics for URL use
     topics = topics.replace(' ', ',')  # Replace spaces with commas
-    encoded_topics = quote_plus(topics)  # URL-encode the comma-separated topics
+    # Split the topics into a list, remove any empty entries, and join them back with commas
+    topics_list = [topic for topic in topics.split(',') if topic]
+    cleaned_topics = ','.join(topics_list)
+    encoded_topics = quote_plus(cleaned_topics)  # URL-encode the cleaned, comma-separated topics
     # Replace '%2C' with ',' in the URL
     return f"https://loremflickr.com/800/600/{encoded_topics.replace('%2C', ',')}"
 
@@ -196,25 +199,26 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         # Log step: Creating the output file
         print_step(f"Creating the output file in {output_format} format...")
 
-        # Generate the output file based on the specified format
+        # Generate the output file based on the requested format
         try:
             if output_format.lower() == 'html':
                 output_file = f"{file_name or prompt}.html"
                 with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(f"<!DOCTYPE html>\n<html>\n<head>\n<title>{prompt}</title>\n")
-                    f.write(f'<meta name="description" content="{description}">\n')  # Dynamic description
-                    f.write(f'<meta name="keywords" content="{meta_keywords}">\n')  # Dynamic keywords
+                    f.write('<!DOCTYPE html>\n')
+                    f.write('<html lang="en">\n<head>\n')
+                    f.write(f'<meta charset="UTF-8">\n')
+                    f.write(f'<meta name="description" content="{description}">\n')
+                    f.write(f'<meta name="keywords" content="{meta_keywords}">\n')
+                    f.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">\n')
+                    f.write(f'<title>{prompt}</title>\n')
                     f.write('</head>\n<body>\n')
+                    f.write('<h1>' + prompt + '</h1>\n')
                     f.write('<markdown>\n')
                     f.write(markdown_content)
                     f.write('\n</markdown>\n')
                     f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
                     f.write('\n</body>\n</html>')
-            elif output_format.lower() == 'md':
-                output_file = f"{file_name or prompt}.md"
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(markdown_content)
-            elif output_format.lower() == 'github':
+            elif output_format.lower() in ['md', 'github']:
                 output_file = f"{file_name or prompt}.md"
                 with open(output_file, 'w', encoding='utf-8') as f:
                     f.write(markdown_content)
