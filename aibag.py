@@ -20,10 +20,10 @@ def print_step(step_text, color=Fore.CYAN):
     print(f"{color}[*] {step_text}{Style.RESET_ALL}")
 
 def print_warning(step_text):
-    print(f"{Fore.YELLOW}[!] {step_text}{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}[ ! ] {step_text}{Style.RESET_ALL}")
 
 def print_error(step_text):
-    print(f"{Fore.RED}[X] {step_text}{Style.RESET_ALL}")
+    print(f"{Fore.RED}[ X] {step_text}{Style.RESET_ALL}")
 
 @retry(stop_max_attempt_number=3, wait_fixed=2000)
 def fetch_blog_content(prompt, max_words=None, min_words=None, language='English'):
@@ -122,31 +122,28 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
 
         # Generate the output file based on the specified format
         try:
-            if output_format.lower() in ['html', 'md']:
-                if output_format.lower() == 'html':
-                    output_file = f"{file_name or prompt}.html"
-                    with open(output_file, 'w', encoding='utf-8') as f:
-                        f.write(f"<!DOCTYPE html>\n<html>\n<head>\n<title>{prompt}</title>\n")
-                        f.write(f'<meta name="description" content="{description}">\n')  # Dynamic description
-                        f.write(f'<meta name="keywords" content="{keywords}">\n')  # Dynamic keywords
-                        f.write('<style>\n')
-                        f.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }\n')
-                        f.write('</style>\n')
-                        f.write('</head>\n<body>\n')
-                        f.write('<markdown>\n')
-                        f.write(blog_content)
-                        f.write('\n</markdown>\n')
-                        f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
-                        f.write('\n</body>\n</html>')
-                else:
-                    output_file = f"{file_name or prompt}.md"
-                    with open(output_file, 'w', encoding='utf-8') as f:
-                        f.write(blog_content)
-
-                # Log step: Blog content generation completed
-                print_step(f"Blog content generated and saved to {output_file}", Fore.GREEN)
+            if output_format.lower() == 'html':
+                output_file = f"{file_name or prompt}.html"
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(f"<!DOCTYPE html>\n<html>\n<head>\n<title>{prompt}</title>\n")
+                    f.write(f'<meta name="description" content="{description}">\n')  # Dynamic description
+                    f.write(f'<meta name="keywords" content="{keywords}">\n')  # Dynamic keywords
+                    f.write('<style>\n')
+                    f.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }\n')
+                    f.write('</style>\n')
+                    f.write('</head>\n<body>\n')
+                    f.write('<markdown>\n')
+                    f.write(blog_content)
+                    f.write('\n</markdown>\n')
+                    f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
+                    f.write('\n</body>\n</html>')
             else:
-                print_error(f"Invalid output format: {output_format}")
+                output_file = f"{file_name or prompt}.md"
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(blog_content)
+
+            # Log step: Blog content generation completed
+            print_step(f"Blog content generated and saved to {output_file}", Fore.GREEN)
         except Exception as e:
             print_error(f"Failed to save the blog content: {e}")
 
@@ -159,7 +156,7 @@ def main():
     parser.add_argument('topic', type=str, help='Topic of the blog')  # Required argument for blog topic
     parser.add_argument('-mw', '--max_words', type=int, help='Maximum number of words')  # Optional max words argument
     parser.add_argument('-mnw', '--min_words', type=int, help='Minimum number of words')  # Optional min words argument
-    parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown', 'md'], default='HTML', help='Output format (HTML, Markdown or md)')  # Optional output format argument
+    parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown'], default='HTML', help='Output format (HTML or Markdown)')  # Optional output format argument
     parser.add_argument('-fn', '--file_name', type=str, help='Output file name')  # Optional file name argument
     parser.add_argument('-l', '--language', type=str, default='English', help='Language of the article')  # Optional language argument
 
