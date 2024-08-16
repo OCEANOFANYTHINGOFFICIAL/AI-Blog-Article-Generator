@@ -57,7 +57,7 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
     blog_content = '\n'.join(lines)
 
     # Step 1: Generate Keywords from the Blog Content
-    keyword_prompt = f"Extract the top SEO keywords for this content:\n{blog_content}"
+    keyword_prompt = f"Extract the top SEO keywords for this content, don't give any extra output, just give the meta keywords in plain text format, no extra words. give the keywords in form of plain text and each keyword must be seperated with comma.Here is the content:\n{blog_content}"
     keyword_response = co.generate(
         model='command-r-plus',
         prompt=keyword_prompt,
@@ -67,7 +67,7 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
     keywords = keyword_response.generations[0].text.strip().replace('\n', ', ')
 
     # Step 2: Generate Description from the Blog Content
-    description_prompt = f"Generate a brief and relevant meta description for this content, dont give any extra output, just give the meta description that is SEO friendly and relevant:\n{blog_content}"
+    description_prompt = f"Generate a brief and relevant meta description for this content, don't give any extra output, just give the meta description that is SEO friendly and relevant:\n{blog_content}"
     description_response = co.generate(
         model='command-r-plus',
         prompt=description_prompt,
