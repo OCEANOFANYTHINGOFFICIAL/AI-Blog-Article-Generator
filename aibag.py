@@ -85,15 +85,21 @@ def generate_image_topics(headline):
 
     return topics
 
-def generate_image_url(topics):
+def generate_image_url(topics, meta_keywords):
     # Replace '+' with ',' and encode the topics for URL use
     topics = topics.replace(' ', ',')  # Replace spaces with commas
     # Split the topics into a list, remove any empty entries, and join them back with commas
     topics_list = [topic for topic in topics.split(',') if topic]
     cleaned_topics = ','.join(topics_list)
     encoded_topics = quote_plus(cleaned_topics)  # URL-encode the cleaned, comma-separated topics
+    
+    # Extract first two keywords from meta_keywords
+    meta_keywords_list = [keyword.strip() for keyword in meta_keywords.split(',')]
+    first_two_keywords = ','.join(meta_keywords_list[:2])
+    encoded_keywords = quote_plus(first_two_keywords)
+    
     # Replace '%2C' with ',' in the URL
-    return f"https://loremflickr.com/800/600/{encoded_topics.replace('%2C', ',')}"
+    return f"https://loremflickr.com/800/600/{encoded_topics.replace('%2C', ',')},{encoded_keywords}"
 
 def generate_meta_keywords(content):
     # Generate SEO meta keywords from the content
@@ -164,12 +170,15 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             if lines[i].startswith('#'):
                 lines[i] = lines[i].rstrip(':')
 
+        # Generate meta keywords
+        meta_keywords = generate_meta_keywords(blog_content)
+
         # Replace section headings with image placeholders from loremflickr.com
         for i, line in enumerate(lines):
             if line.startswith('# '):  # Heading line
                 section_title = line[2:]  # Remove the '# ' prefix
                 image_topics = generate_image_topics(section_title)
-                image_url = generate_image_url(image_topics)
+                image_url = generate_image_url(image_topics, meta_keywords)
                 lines[i] = f'{line}\n![Image]({image_url})'
 
         # Join the lines to form the final Markdown content
@@ -188,9 +197,6 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         except Exception as e:
             print_error(f"Failed to generate description: {e}")
             description = "Default SEO description"
-
-        # Generate meta keywords
-        meta_keywords = generate_meta_keywords(markdown_content)
 
         # Convert to GitHub README style if requested
         if output_format.lower() == 'github':
