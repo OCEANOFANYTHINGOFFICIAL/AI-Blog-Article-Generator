@@ -1,3 +1,8 @@
+# AI Blog Article Generator
+# Description: A Python script to generate a blog article using the Cohere API based on a given topic or prompt.
+# Author: Nakshatra Ranjan Saha
+# version: 2.0
+
 import warnings
 
 # Suppress specific Pydantic warnings
