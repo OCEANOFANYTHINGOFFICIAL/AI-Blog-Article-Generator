@@ -334,20 +334,40 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             if output_format.lower() == 'html':
                 output_file = f"{file_name or prompt}.html"
                 with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write('<!DOCTYPE html>\n')
-                    f.write('<html lang="en">\n<head>\n')
-                    f.write(f'<meta charset="UTF-8">\n')
-                    f.write(f'<meta name="description" content="{description}">\n')
-                    f.write(f'<meta name="keywords" content="{meta_keywords}">\n')
-                    f.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">\n')
-                    f.write(f'<title>{prompt}</title>\n')
-                    f.write('</head>\n<body>\n')
-                    f.write('<h1>' + prompt + '</h1>\n')
-                    f.write('<markdown>\n')
-                    f.write(markdown_content)
-                    f.write('\n</markdown>\n')
-                    f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
-                    f.write('\n</body>\n</html>')
+                    # f.write('<!DOCTYPE html>\n')
+                    # f.write('<html lang="en">\n<head>\n')
+                    # f.write(f'<meta charset="UTF-8">\n')
+                    # f.write(f'<meta name="description" content="{description}">\n')
+                    # f.write(f'<meta name="keywords" content="{meta_keywords}">\n')
+                    # f.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">\n')
+                    # f.write(f'<title>{prompt}</title>\n')
+                    # f.write('</head>\n<body>\n')
+                    # f.write('<h1>' + prompt + '</h1>\n')
+                    # f.write('<markdown>\n')
+                    # f.write(markdown_content)
+                    # f.write('\n</markdown>\n')
+                    # f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
+                    # f.write('\n</body>\n</html>')
+                    f.write(f"""
+                            <!DOCTYPE html>
+                            <html lang="en">
+                            
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="description" content="{description}">
+                                    <meta name="keywords" content="{meta_keywords}">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>{prompt}</title>
+                                </head>
+                                <body>
+                                    <h1>{prompt}</h1>
+                                    <markdown>
+                                        {markdown_content}
+                                    </markdown>
+                                    <script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>
+                                </body>
+                            </html>
+                            """)
                 print_step(f"Blog content saved to: {output_file}")
             elif output_format.lower() in ['md', 'github']:
                 output_file = f"{file_name or prompt}.md"
