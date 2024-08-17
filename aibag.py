@@ -35,8 +35,6 @@ def fetch_blog_content(prompt, max_words=None, min_words=None, language='English
     2. Detailed, engaging content under each heading.
     3. SEO-optimized keywords and a meta description.
 
-    For each section of the article, suggest relevant images by providing image descriptions or URLs suitable for that section. Make sure to incorporate these images in the Markdown format of the article.
-
     Use conversational and human-like writing style, ensuring the content is unique, informative, and engaging. End with a conclusion paragraph and 5 unique FAQs after the conclusion. Bold the title and all headings.
 
     Here is the topic: "{prompt}"
