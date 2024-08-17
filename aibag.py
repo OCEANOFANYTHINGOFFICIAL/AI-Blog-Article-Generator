@@ -337,7 +337,7 @@ def main():
     parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown', 'md', 'github'], default='HTML', help='Output format (HTML, Markdown, md, GitHub)')  # Optional output format argument
     parser.add_argument('-fn', '--file_name', type=str, help='Output file name')  # Optional file name argument
     parser.add_argument('-l', '--language', type=str, default='English', help='Language of the article')  # Optional language argument
-    parser.add_argument('-gf', '--github_readme', action='store_true', help='Convert content to GitHub README format')  # Small flag for GitHub README formatting
+    parser.add_argument('-gr', '--github_readme', action='store_true', help='Convert content to GitHub README format')  # Small flag for GitHub README formatting
 
     args = parser.parse_args()
 
