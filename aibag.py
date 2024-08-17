@@ -17,20 +17,43 @@ init(autoreset=True)
 # Initialize the Cohere API client using the provided API key
 co = cohere.Client(api_key=COHERE_API_KEY)
 
-def print_step(step_text, color=Fore.CYAN):
-    print(f"{color}[*] {step_text}{Style.RESET_ALL}")
+def print_step(step_text):
+    """
+    Print a step message with Cyan color.
+    """
+    print(f"{Fore.CYAN}[*] {step_text}{Style.RESET_ALL}")
 
 def print_success(step_text):
+    """
+    Print a success message with Green color.
+    """
     print(f"{Fore.GREEN}[+] {step_text}{Style.RESET_ALL}")
 
 def print_warning(step_text):
+    """
+    Print a warning message with Yellow color.
+    """
     print(f"{Fore.YELLOW}[!] {step_text}{Style.RESET_ALL}")
 
 def print_error(step_text):
+    """
+    Print an error message with Red color.
+    """
     print(f"{Fore.RED}[X] {step_text}{Style.RESET_ALL}")
 
 @retry(stop_max_attempt_number=3, wait_fixed=2000)
 def fetch_blog_content(prompt, max_words=None, min_words=None, language='English'):
+    """
+    Generate a blog article based on the provided prompt using the Cohere API.
+    Args:
+        prompt (str): The topic or prompt for the blog article.
+        max_words (int): The maximum number of words for the blog article.
+        min_words (int): The minimum number of words for the blog article.
+        language (str): The language for the blog article (default is English).
+    Returns:
+        str: The generated blog content based on the prompt
+    """
+    
     # Create a detailed prompt for the Cohere API
     engineered_prompt = f"""
     I want you to act as a professional content writer with expertise in SEO and blog writing. Create a comprehensive 2000-word blog article in {language} on the topic provided. The article should include:
@@ -67,6 +90,13 @@ def fetch_blog_content(prompt, max_words=None, min_words=None, language='English
     return blog_content
 
 def generate_image_topics(headline):
+    """
+    Generate image topics based on the provided headline using the Cohere API.
+    Args:
+        headline (str): The headline or title for the blog article.
+    Returns:
+        str: The generated image topics based on the headline
+    """
     # Generate image topics based on the headline
     topics_prompt = f"""
     Generate a list of keywords or topics for images based on the following headline. Provide the topics separated by commas. Here is the headline:
@@ -87,6 +117,14 @@ def generate_image_topics(headline):
     return topics
 
 def generate_image_url(meta_keywords):
+    """
+    Generate a random image URL based on the provided meta keywords.
+    Args:
+        meta_keywords (str): The meta keywords for the blog article.
+    Returns:
+        str: A random image URL based on the meta keywords
+    """
+    
     # Extract keywords from the meta_keywords
     keywords_list = [keyword.strip() for keyword in meta_keywords.split(',')]
     
@@ -100,6 +138,14 @@ def generate_image_url(meta_keywords):
     return f"https://loremflickr.com/800/600/{random_keyword.replace(' ', ',')}"
 
 def generate_meta_keywords(content):
+    """
+    Generate SEO meta keywords based on the provided content using the Cohere API.
+    Args:
+        content (str): The blog content for generating meta keywords.
+    Returns:
+        str: The generated SEO meta keywords based on the content
+    """
+    
     # Generate SEO meta keywords from the content
     keywords_prompt = f"""
     Generate a list of SEO keywords relevant to the following blog content. The keywords should be separated by commas and should be highly relevant to the content. Here is the content:
@@ -120,6 +166,14 @@ def generate_meta_keywords(content):
     return keywords
 
 def github_readme_font(content):
+    """
+    Convert the blog content into GitHub README specific font formatting.
+    Args:
+        content (str): The blog content to be converted.
+    Returns:
+        str: The blog content formatted in Markdown suitable for a GitHub README file.
+    """
+    
     # Generate GitHub README specific font formatting
     readme_prompt = f"""
     Convert the following blog content into GitHub README style formatting. The content should be formatted in Markdown suitable for a GitHub README file. Here is the content:
@@ -235,6 +289,19 @@ def github_readme_font(content):
         print_error(f"Failed to generate the blog: {e}")
 
 def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None, language='English'):
+    """
+    Generate a blog article based on the provided prompt and save it to an output file.
+    Args:
+        prompt (str): The topic or prompt for the blog article.
+        max_words (int): The maximum number of words for the blog article.
+        min_words (int): The minimum number of words for the blog article.
+        output_format (str): The output format for the blog article (HTML, Markdown, GitHub).
+        file_name (str): The name of the output file to be generated.
+        language (str): The language for the blog article (default is English).
+    Returns:
+        None
+    """
+    
     try:
         # Log step: Starting blog content generation
         print_step(f"Generating blog content for the topic: {prompt}")
@@ -334,39 +401,9 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             if output_format.lower() == 'html':
                 output_file = f"{file_name or prompt}.html"
                 with open(output_file, 'w', encoding='utf-8') as f:
-                    # f.write('<!DOCTYPE html>\n')
-                    # f.write('<html lang="en">\n<head>\n')
-                    # f.write(f'<meta charset="UTF-8">\n')
-                    # f.write(f'<meta name="description" content="{description}">\n')
-                    # f.write(f'<meta name="keywords" content="{meta_keywords}">\n')
-                    # f.write('<meta name="viewport" content="width=device-width, initial-scale=1.0">\n')
-                    # f.write(f'<title>{prompt}</title>\n')
-                    # f.write('</head>\n<body>\n')
-                    # f.write('<h1>' + prompt + '</h1>\n')
-                    # f.write('<markdown>\n')
-                    # f.write(markdown_content)
-                    # f.write('\n</markdown>\n')
-                    # f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
-                    # f.write('\n</body>\n</html>')
-#                     f.write(f"""
-# <!DOCTYPE html>
-# <html lang="en">
-#     <head>
-#         <meta charset="UTF-8">
-#         <meta name="description" content="{description}">
-#         <meta name="keywords" content="{meta_keywords}">
-#         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-#         <title>{prompt}</title>
-#     </head>
-#     <body>
-#         <h1>{prompt}</h1>
-#         <markdown>
-#             {markdown_content}
-#         </markdown>
-#         <script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>
-#     </body>
-# </html>
-# """)
+                    # Format the HTML content with the generated blog Markdown content.
+                    # IMPORTANT: Dont change the format of the HTML content. It is required for perfect rendering and indentation of the blog content.
+                    
                     f.write(f"""<!DOCTYPE html>
 <html lang="en">
 
@@ -404,6 +441,10 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
 
 
 def main():
+    """
+    Main function to parse command-line arguments and generate a blog article.
+    """
+    
     # Set up argument parser for command-line interface
     parser = argparse.ArgumentParser(description='AI Blog Generator')
     parser.add_argument('topic', type=str, help='Topic of the blog')  # Required argument for blog topic
