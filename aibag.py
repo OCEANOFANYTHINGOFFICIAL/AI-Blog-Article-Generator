@@ -412,7 +412,14 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
       <meta name="description" content="{description}">
       <meta name="keywords"content="{meta_keywords}">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{prompt}</title>
+      <title>{prompt}</title>""")
+                    f.write("""
+      <style>
+         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+         }
+      </style>""")
+                    f.write(f"""
    </head>
 
    <body>
