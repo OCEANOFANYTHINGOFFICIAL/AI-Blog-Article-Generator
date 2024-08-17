@@ -20,6 +20,9 @@ co = cohere.Client(api_key=COHERE_API_KEY)
 def print_step(step_text, color=Fore.CYAN):
     print(f"{color}[*] {step_text}{Style.RESET_ALL}")
 
+def print_success(step_text):
+    print(f"{Fore.GREEN}[+] {step_text}{Style.RESET_ALL}")
+
 def print_warning(step_text):
     print(f"{Fore.YELLOW}[!] {step_text}{Style.RESET_ALL}")
 
@@ -95,8 +98,6 @@ def generate_image_url(meta_keywords):
     
     # Generate the URL with the selected keyword
     return f"https://loremflickr.com/800/600/{random_keyword.replace(' ', ',')}"
-
-
 
 def generate_meta_keywords(content):
     # Generate SEO meta keywords from the content
@@ -240,6 +241,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
 
         # Fetch blog content with retry
         blog_content = fetch_blog_content(prompt, max_words, min_words, language)
+        
+        print_success("Blog content generated successfully!")
 
         # Log step: Cleaning up blog content
         print_step("Cleaning up the generated blog content...")
@@ -251,6 +254,8 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
         blog_content = blog_content.replace("### H3:", "###")
         blog_content = blog_content.replace("## H2:", "##")
         blog_content = blog_content.replace("# H1:", "#")
+        
+        print_success("Blog content cleaned up successfully!")
 
         # Ensure the first line is a top-level heading
         if not blog_content.startswith("# "):
@@ -263,17 +268,28 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                 lines[i] = lines[i].rstrip(':')
 
         # Replace section headings with image placeholders from loremflickr.com
-        for i, line in enumerate(lines):
-            if line.startswith('# '):  # Heading line
-                section_title = line[2:]  # Remove the '# ' prefix
-                meta_keywords = generate_meta_keywords(blog_content)
-                image_url = generate_image_url(meta_keywords)
-                lines[i] = f'{line}\n![Image]({image_url})'
-
-        # Join the lines to form the final Markdown content
-        markdown_content = '\n'.join(lines)
+        
+        print_step("Generating & inserting image into the blog...")
+        try:
+            for i, line in enumerate(lines):
+                if line.startswith('# '):  # Heading line
+                    section_title = line[2:]  # Remove the '# ' prefix
+                    meta_keywords = generate_meta_keywords(blog_content)
+                    image_url = generate_image_url(meta_keywords)
+                    lines[i] = f'{line}\n![Image]({image_url})'
+            # Join the lines to form the final Markdown content
+            markdown_content = '\n'.join(lines)
+            print_success("Image generated and inserted successfully!")
+        except Exception as e:
+            print_error(f"Failed to generate and insert image: {e}")
+            print_warning("Continuing without inserting images...")
+            pass
+        
+        print_success("Image URLs generated successfully!")
 
         # Generate SEO meta description
+        print_step(f"Generating SEO meta description for the blog: {prompt}")
+        
         description_prompt = f"Generate a brief and relevant meta description for this content. Just give the meta description that is SEO friendly and relevant, don't give any extra words, or any prefix or suffix. Here is the content:\n{markdown_content}"
         try:
             description_response = co.generate(
@@ -283,12 +299,24 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                 temperature=0.5,
             )
             description = description_response.generations[0].text.strip()
+            print_success("SEO meta description generated successfully!")
         except Exception as e:
             print_error(f"Failed to generate description: {e}")
-            description = "Default SEO description"
+            # Fallback to a default description which is the title of the blog separated by commas
+            description = str(prompt)
+            print_warning(f"Using the default description: {description}")
 
         # Generate meta keywords
-        meta_keywords = generate_meta_keywords(markdown_content)
+        print_step(f"Generating meta keywords for the blog: {prompt}")
+        
+        try:
+            meta_keywords = generate_meta_keywords(markdown_content)
+            print_success("Meta keywords generated successfully!")
+        except Exception as e:
+            print_error(f"Failed to generate keywords: {e}")
+            meta_keywords = ', '.join(prompt.split())
+            print_warning(f"Using the blog title as meta keywords: {meta_keywords}")
+        
 
         # Convert to GitHub README style if requested
         if output_format.lower() == 'github':
@@ -316,6 +344,7 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                     f.write('\n</markdown>\n')
                     f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
                     f.write('\n</body>\n</html>')
+                print_step(f"Blog content saved to: {output_file}")
             elif output_format.lower() in ['md', 'github']:
                 output_file = f"{file_name or prompt}.md"
                 with open(output_file, 'w', encoding='utf-8') as f:
