@@ -349,25 +349,24 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                     # f.write('<script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>\n')
                     # f.write('\n</body>\n</html>')
                     f.write(f"""
-                            <!DOCTYPE html>
-                            <html lang="en">
-                            
-                                <head>
-                                    <meta charset="UTF-8">
-                                    <meta name="description" content="{description}">
-                                    <meta name="keywords" content="{meta_keywords}">
-                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                    <title>{prompt}</title>
-                                </head>
-                                <body>
-                                    <h1>{prompt}</h1>
-                                    <markdown>
-                                        {markdown_content}
-                                    </markdown>
-                                    <script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>
-                                </body>
-                            </html>
-                            """)
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="{description}">
+        <meta name="keywords" content="{meta_keywords}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{prompt}</title>
+    </head>
+    <body>
+        <h1>{prompt}</h1>
+        <markdown>
+            {markdown_content}
+        </markdown>
+        <script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>
+    </body>
+</html>
+""")
                 print_success(f"Blog content saved to: {output_file}")
             elif output_format.lower() in ['md', 'github']:
                 try:
