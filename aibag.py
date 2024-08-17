@@ -416,9 +416,7 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
    </head>
 
    <body>
-      <mmarkdown>
-         {markdown_content}
-      </mmarkdown>
+      <mmarkdown>{markdown_content}</mmarkdown>
       <script src="https://cdn.jsdelivr.net/gh/OCEANOFANYTHINGOFFICIAL/mdonhtml.js/scripts/mdonhtml.min.js"></script>
    </body>
 
