@@ -89,7 +89,10 @@ def generate_image_url(meta_keywords):
     
     # Choose a single random keyword from the list
     random_keyword = random.choice(keywords_list) if keywords_list else 'default'
-
+    
+    # Get the first word from the random keyword
+    random_keyword = random_keyword.split()[0]
+    
     # Generate the URL with the selected keyword
     return f"https://loremflickr.com/800/600/{random_keyword.replace(' ', ',')}"
 
