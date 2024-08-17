@@ -232,7 +232,6 @@ def github_readme_font(content):
     except Exception as e:
         print_error(f"Failed to generate the blog: {e}")
 
-
 def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', file_name=None, language='English'):
     try:
         # Log step: Starting blog content generation
@@ -338,12 +337,17 @@ def main():
     parser.add_argument('-of', '--output_format', type=str, choices=['HTML', 'Markdown', 'md', 'github'], default='HTML', help='Output format (HTML, Markdown, md, GitHub)')  # Optional output format argument
     parser.add_argument('-fn', '--file_name', type=str, help='Output file name')  # Optional file name argument
     parser.add_argument('-l', '--language', type=str, default='English', help='Language of the article')  # Optional language argument
+    parser.add_argument('-gf', '--github_readme', action='store_true', help='Convert content to GitHub README format')  # Small flag for GitHub README formatting
 
     args = parser.parse_args()
 
     # Ensure that at least one of max_words or min_words is provided
     if not args.max_words and not args.min_words:
         parser.error('At least one of --max_words or --min_words is required.')
+
+    # Check if the GitHub README formatting flag is set
+    if args.github_readme:
+        args.output_format = 'github'
 
     # Generate the blog based on parsed arguments
     generate_blog(args.topic, args.max_words, args.min_words, args.output_format, args.file_name, args.language)
