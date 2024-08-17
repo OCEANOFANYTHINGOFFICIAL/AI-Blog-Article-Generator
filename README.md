@@ -235,3 +235,41 @@ Overall, building this tool was a challenging but rewarding experience.
 But Remmember, This tool is not perfect, and there is always room for improvement. I encourage you to contribute to the project, provide feedback, and help make it better. Together, we can create a valuable resource for the community.
 
 I hope you find this tool useful for generating blog articles quickly and efficiently. If you have any feedback, suggestions, or issues, feel free to open an issue or reach out to me directly. I'm always looking to improve the tool and make it more user-friendly.
+
+## Release Notes
+
+This release introduces several significant updates and enhancements to the **AI Blog Article Generator**. These changes include new features, improvements in functionality, and added options to enhance user experience. Below are the detailed updates:
+
+### New Features
+
+#### 1. **GitHub README Format Support**
+
+   - Added support for generating content in GitHub README format. You can now use the `-gf` or `--github_readme_format` flag to convert your blog content into a format suitable for GitHub README files. This new feature helps in creating documentation-style content directly from the tool.
+
+#### 2. **Dynamic Image Integration**
+
+   - Integrated functionality to fetch relevant images from Unsplash based on the topic. This enhancement automatically generates image URLs and inserts them into the content, improving the visual appeal and engagement of the articles.
+
+#### 3. **Enhanced Error Handling**
+
+   - Implemented advanced error handling mechanisms, including timeout and retry options. These improvements ensure that the tool is more reliable and resilient to network issues and other errors during content generation.
+
+### Improvements
+
+#### 1. **Extended Format Options**
+
+   - Added `GitHub README` as an output format option in addition to `HTML` and `Markdown`. Users can now choose the desired format for their output files to better meet their specific needs.
+
+#### 2. **Command-Line Interface Enhancements**
+
+   - Updated the command-line options to include the new `-gf` flag for GitHub README format. The `-of` flag now supports three formats: HTML, Markdown, and GitHub README.
+
+#### 3. **Updated Project Structure**
+
+   - Refined project structure to include support for dynamic image integration and advanced error handling features. This involves adjustments in the codebase and configuration files to accommodate new functionalities.
+
+### Bug Fixes
+
+- Fixed minor bugs related to file naming and formatting issues.
+- Resolved issues with language support for non-English content.
+- Improved handling of special characters and symbols in the generated content.
