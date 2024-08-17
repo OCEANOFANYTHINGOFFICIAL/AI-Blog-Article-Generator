@@ -368,16 +368,19 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
                                 </body>
                             </html>
                             """)
-                print_step(f"Blog content saved to: {output_file}")
+                print_success(f"Blog content saved to: {output_file}")
             elif output_format.lower() in ['md', 'github']:
-                output_file = f"{file_name or prompt}.md"
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(markdown_content)
+                try:
+                    output_file = f"{file_name or prompt}.md"
+                    with open(output_file, 'w', encoding='utf-8') as f:
+                        f.write(markdown_content)
+                    print_success(f"Blog content saved to: {output_file}")
+                except Exception as e:
+                    print_error(f"Failed to save the blog content: {e}")
             else:
                 print_error(f"Invalid output format: {output_format}")
         except Exception as e:
             print_error(f"Failed to save the blog content: {e}")
-
     except Exception as e:
         print_error(f"Failed to generate the blog: {e}")
 
