@@ -285,8 +285,6 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
             print_warning("Continuing without inserting images...")
             pass
         
-        print_success("Image URLs generated successfully!")
-
         # Generate SEO meta description
         print_step(f"Generating SEO meta description for the blog: {prompt}")
         
@@ -320,7 +318,13 @@ def generate_blog(prompt, max_words=None, min_words=None, output_format='HTML', 
 
         # Convert to GitHub README style if requested
         if output_format.lower() == 'github':
-            markdown_content = github_readme_font(markdown_content)
+            try:
+                markdown_content = github_readme_font(markdown_content)
+                print_success("GitHub README formatting applied successfully!")
+            except Exception as e:
+                print_error(f"Failed to apply GitHub README formatting: {e}")
+                print_warning("Continuing without GitHub README formatting...")
+                pass
 
         # Log step: Creating the output file
         print_step(f"Creating the output file in {output_format} format...")
